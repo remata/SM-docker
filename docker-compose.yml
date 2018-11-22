@@ -1,0 +1,71 @@
+version: "3"
+
+services:
+  sm:
+    build:
+      context: ./Dockerfiles/sm
+      dockerfile: ./Dockerfile
+      args:
+        SM_INSTALL_DIR: /opt/HPE/SM/Server
+    ports:
+      - "13080:13080"
+    depends_on:
+      - db
+    links:
+      - db
+    tty: true
+    environment:
+      WAIT_HOSTS: db:1521, db:8080
+      WAIT_HOSTS_TIMEOUT: 5000
+      WAIT_BEFORE_HOSTS: 10
+      WAIT_AFTER_HOSTS: 10
+      APPLY_SM_PATCH: "true"
+      DB_USER: system
+      DB_PASSWORD: oracle
+
+  web:
+    build:
+      context: ./Dockerfiles/web
+      dockerfile: ./Dockerfile
+    ports:
+      - "8888:8080"
+    depends_on:
+      - sm
+    links:
+      - sm
+    volumes:
+      - ./Dockerfiles/web/webtier:/usr/local/tomcat/webapps/sm
+    environment:
+      WAIT_HOSTS: sm:13080
+      WAIT_HOSTS_TIMEOUT: 10000
+      WAIT_BEFORE_HOSTS: 5
+      WAIT_AFTER_HOSTS: 5
+
+  src:
+    build:
+      context: ./Dockerfiles/src
+      dockerfile: ./Dockerfile
+    ports:
+      - "9999:8080"
+    depends_on:
+      - sm
+    links:
+      - sm
+    volumes:
+      - ./Dockerfiles/src/src:/usr/local/tomcat/webapps/src
+    environment:
+      WAIT_HOSTS: sm:13080
+      WAIT_HOSTS_TIMEOUT: 10000
+      WAIT_BEFORE_HOSTS: 5
+      WAIT_AFTER_HOSTS: 5
+
+  db:
+    image: sath89/oracle-12c
+    ports:
+      - "1521:1521"
+      - "8000:8080"
+    volumes:
+      - SMDBVol:/u01/app/oracle
+
+volumes:
+  SMDBVol:
