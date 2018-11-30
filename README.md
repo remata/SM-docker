@@ -15,5 +15,5 @@ Here is HOWTO:
   - Download and extract Service Manager Web Tier jar into Dockerfiles/web/webtier
  4. Execute "docker-compose build" to build images
  5. Execute "docker-compose up -d" to bring up containers. If you need only some components, you can do e.g. "docker-compose up -d sm web", this will bring SM Server and Web Tier, but not SRC.
- 6. You can control if SM Server patch is applied by setting APPLY_SM_PATCH: "true" or "false" in docker-compose.yml file. Rebuild sm image.
+ 6. You can control if SM Server patch is applied by setting APPLY_SM_PATCH: "true" or "false" in docker-compose.yml file. Rebuild sm image after changing the parameter.
   
